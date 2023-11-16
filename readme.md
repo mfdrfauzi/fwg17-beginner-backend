@@ -1,0 +1,1 @@
+Mohon maaf mas saya masih mencerna materi kemarin, diusahakan malam ini sudah selesai sampai tugas yang hari ini.
