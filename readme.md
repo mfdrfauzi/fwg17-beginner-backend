@@ -1,1 +1,1 @@
-Mohon maaf mas saya masih mencerna materi kemarin, diusahakan malam ini sudah selesai sampai tugas yang hari ini.
+Maaf mas masih belum complete, saya meninggalkan checkpoint dulu jam segini karena sudah cukup banyak memahami apa yang di pelajar, tinggal memberikan comment2 sedikit lagi
