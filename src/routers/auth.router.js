@@ -1,4 +1,4 @@
-//deklarasi variable authRouter sebagai router dengan express
+//deklarasi authRouter sebagai router dengan express
 const authRouter = require('express').Router()
 
 //mendeklarasikan authController untuk mengimport module/file 'auth.controller.js' yang mengatur proses authentification di folder '/src/controllers'

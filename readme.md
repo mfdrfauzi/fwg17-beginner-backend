@@ -1,1 +1,1 @@
-Maaf mas masih belum complete, saya meninggalkan checkpoint dulu jam segini karena sudah cukup banyak memahami apa yang di pelajar, tinggal memberikan comment2 sedikit lagi
+Sudah selesai, mohon maaf atas keterlambatannya

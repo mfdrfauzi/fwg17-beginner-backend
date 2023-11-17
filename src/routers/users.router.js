@@ -19,4 +19,5 @@ userRouter.patch('/:id', userController.updateUser)
 //menggunakan/memanggil router dengan fungsi deleteUser dalam module/file users.controller yang menangani permintaan delete di endpoint '/:id' dari user/admin untuk menghapus data user berdasarkan id
 userRouter.delete('/:id', userController.deleteUser)
 
+//export modul userRouter agar bisa digunakan oleh file lain
 module.exports = userRouter
