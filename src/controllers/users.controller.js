@@ -73,11 +73,24 @@ exports.createUser = async (req, res) =>{
             results: user
         })
     }catch(err){
-        if(err.code === "23502")
-        return res.status(400).json({
-            success: false,
-            message: `${err.column} Cannot be empty`
+        console.log(JSON.stringify(err))
+        if(err.code === "23502"){
+                return res.status(400).json({
+                success: false,
+                message: `${err.column} Cannot be empty`
         })
+        //ada masalah, ${err.column} mereturn undefined
+        }else if(err.code === "23505"){
+            return res.status(400).json({
+                success: false,
+                message: `${err.column} has been used. Try another`
+            })
+        }else{
+            return res.status(500).json({
+                success: false,
+                message: 'Internal server error'
+            });
+        }
     }
 }
 
