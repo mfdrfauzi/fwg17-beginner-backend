@@ -112,13 +112,14 @@ exports.updateUser = async (req, res) =>{
 }
 
 //mendefinisikan fungsi deleteUser untuk menghapus data user yang nantinya akan di export untuk digunakan oleh router
-exports.deleteUser = (req, res) => {
+exports.deleteUser = async (req, res) => {
     //mendestruct id dari request params
-    const {id} = req.params
+    const id = parseInt(req.params.id)
     // mencari user dengan ID yang sesuai dalam array 'users' berdasarkan request dari parameter id yang bertipe integer
-    const user = users.filter(user => user.id === parseInt(id))
+    // const user = users.filter(user => user.id === parseInt(id))
+    const user = await userModel.deleteUser(id)
     //memeriksa apakah user ditemukan berdasarkan panjang/banyak nya user ketika sudah di filter
-    if(!users.length){
+    if(!user){
         //jika tidak ditemukan, akan mereturn respon json 404 dengan pesan 'User not found'
         return res.status(404).json({
             success: false,
@@ -126,12 +127,12 @@ exports.deleteUser = (req, res) => {
         })
     }
     //reassign users sehingga users berisi user yang tidak memiliki id yang sesuai dengan filter
-    users = users.filter(user => user.id !== parseInt(id))
+    // users = users.filter(user => user.id !== parseInt(id))
     //mereturn respon json yang menyatakan kebehasilan penghapusan user dengan pesan 'Delete Success' dan data user yang dihapus
     return res.json({
         success: true,
         message: 'Delete success',
-        results: user[0]
+        results: user
     })
     
 }

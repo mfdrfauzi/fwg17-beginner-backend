@@ -34,3 +34,11 @@ exports.updateUser = async (id,name)=>{
     const {rows} = await db.query(sql, values)
     return rows[0]
 }
+
+exports.deleteUser = async (id)=>{
+    const sql = `DELETE FROM "users" WHERE "id" = $1
+    RETURNING *`
+    const values = [id]
+    const {rows} = await db.query(sql, values)
+    return rows[0]
+}
