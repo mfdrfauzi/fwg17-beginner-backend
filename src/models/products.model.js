@@ -27,30 +27,53 @@ exports.findAll = async (keyword='',sortBy, orderBy, page=1)=>{
     return rows
 }
 
-exports.findDetails = async (id)=>{
-    const sql = `SELECT * FROM "products" WHERE "id" = $1`
+exports.findDetails = async (id,selectedColumns)=>{
+    const column = ["id", "name", "description", "basePrice", "rate"]
+    selectColumns = selectedColumns || column
+
+    const sql = `
+    SELECT ${selectColumns.map(col => `"p"."${col}" AS "${col}"`).join(', ')}
+    FROM "products" "p"
+    LEFT JOIN "productRatings" "pr" ON "p"."id" = "pr"."productId"
+    WHERE "p"."id" = $1`
     const values = [id]
     const {rows} = await db.query(sql, values)
     return rows[0]
 }
 
 exports.insert = async (data)=>{
-    const sql = `INSERT INTO "products"
-    ("name", "description", "basePrice", "image", "discount", "isRecommended")
+    const columns = []
+    const values = []
+    for(let item in data){
+        values.push(data[item])
+        columns.push(`"${item}"`)
+    }
+
+    const insertedValues = values.map((value, index) => `$${index + 1}`).join(', ');
+
+    const sql = `
+    INSERT INTO "products"
+    (${columns.join(', ')})
     VALUES
-    ($1,$2,$3,$4,$5,$6)
+    (${insertedValues})
     RETURNING *
     `
-    const values = [data.name, data.description, data.basePrice, data.image, data.discount, data.isRecommended]
     const {rows} = await db.query(sql, values)
     return rows[0]
 }
 
-exports.updateProduct = async (id,name)=>{
+exports.updateProduct = async (id,data)=>{
+    const columns = []
+    const values = []
+    values.push(id)
+    for(let item in data){
+        values.push(data[item])
+        columns.push(`"${item}"=$${values.length}`)
+    }
+
     const sql = `UPDATE "products"
-    SET "name" = $1 WHERE "id" = $2
+    SET ${columns.join(', ')} WHERE "id" = $1
     RETURNING *`
-    const values = [name,id]
     const {rows} = await db.query(sql, values)
     return rows[0]
 }

@@ -37,8 +37,10 @@ exports.getAllProducts = async (req,res) =>{
 }
 
 exports.getDetailProduct = async (req, res) =>{
-    const id = parseInt(req.params.id)
-    const product = await productModel.findDetails(id)
+    const {id} = req.params
+    const {columns} = req.query
+    const selectedColumns = columns ? columns.split(',') : undefined
+    const product = await productModel.findDetails(id, selectedColumns)
     if(!product){
         return res.status(404).json({
             success: false,
@@ -69,14 +71,14 @@ exports.createProduct = async (req, res) =>{
             message: `${err.column} Cannot be empty`
             })
         }
+        
     }
 }
 
 exports.updateProduct = async (req, res) =>{
     const id = req.params.id
-    const name = req.body.name
     
-    const product = await productModel.updateProduct(id,name)
+    const product = await productModel.updateProduct(id,req.body)
     
     if(!product){
         return res.status(404).json({
