@@ -1,7 +1,7 @@
 const db = require('../lib/db.lib')
 
 exports.findAll = async (keyword='',sortBy, orderBy, page=1)=>{
-    const column = ["id", "name", "basePrice", "createdAt"]
+    const column = ["id", "name", "basePrice", "created_at"]
     const ordering = ["asc","desc"]
     const limit = 10
     const offset = (page - 1) * limit
@@ -15,11 +15,12 @@ exports.findAll = async (keyword='',sortBy, orderBy, page=1)=>{
     "p"."description", 
     "p"."basePrice" AS "price", 
     "pr"."rate" AS "rating",
+    TO_CHAR("p"."created_at", 'YYYY/MM/DD') AS "createdAt",
     COUNT(*) OVER() AS "total_count"
     FROM "products" "p"
     LEFT JOIN "productRatings" "pr" ON "p"."id" = "pr"."productId"
     WHERE "p"."name" ILIKE $1
-    ORDER BY ${sortBy} ${orderBy}
+    ORDER BY ${sortBy === 'created_at' ? `"p"."${sortBy}"::date` : `"p"."${sortBy}"`} ${orderBy}
     LIMIT ${limit} OFFSET ${offset}
     `
     const values = [`%${keyword}%`]

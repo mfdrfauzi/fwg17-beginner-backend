@@ -1,36 +1,82 @@
 const db = require('../lib/db.lib')
 
-exports.findAll = async ()=>{
-    const sql = `SELECT * FROM "users"`
-    const values = []
+exports.findAll = async (keyword='',sortBy, orderBy, page=1)=>{
+    const column = ["id", "fullName", "role", "created_at"]
+    const ordering = ["asc","desc"]
+    const limit = 5
+    const offset = (page - 1) * limit
+
+    sortBy = column.includes(sortBy) ? sortBy : 'id'
+    orderBy = ordering.includes(orderBy) ? orderBy : 'asc'
+
+    const sql = `
+    SELECT 
+    "id", 
+    "fullName", 
+    "email",
+    "password",
+    "phoneNumber",
+    "role",
+    TO_CHAR("created_at", 'YYYY/MM/DD'),
+    COUNT(*) OVER() AS "total_count"
+    FROM "users"
+    WHERE "fullName" ILIKE $1
+    ORDER BY ${sortBy === 'created_at' ? `"${sortBy}"::date` : `"${sortBy}"`} ${orderBy}
+    LIMIT ${limit} OFFSET ${offset}
+    `
+    const values = [`%${keyword}%`]
     const {rows} = await db.query(sql, values)
     return rows
 }
 
-exports.findDetails = async (id)=>{
-    const sql = `SELECT * FROM "users" WHERE "id" = $1`
+exports.findDetails = async (id,selectedColumns)=>{
+    const column = [
+        "id", "fullName", "email", 
+        "password", "phoneNumber", "role", "created_at"]
+    selectColumns = selectedColumns || column
+
+    const sql = `
+    SELECT ${selectColumns.map(col => `"${col}" AS "${col}"`).join(', ')}
+    FROM "users" 
+    WHERE "id" = $1`
     const values = [id]
     const {rows} = await db.query(sql, values)
     return rows[0]
 }
 
 exports.insert = async (data)=>{
-    const sql = `INSERT INTO "users"
-    ("fullName", "email", "password", "address", "picture", "phoneNumber", "role")
+    const columns = []
+    const values = []
+    for(let item in data){
+        values.push(data[item])
+        columns.push(`"${item}"`)
+    }
+
+    const insertedValues = values.map((value, index) => `$${index + 1}`).join(', ');
+
+    const sql = `
+    INSERT INTO "users"
+    (${columns.join(', ')})
     VALUES
-    ($1,$2,$3,$4,$5,$6,$7)
+    (${insertedValues})
     RETURNING *
     `
-    const values = [data.name, data.email, data.password, data.address, data.picture, data.phoneNumber, data.role]
     const {rows} = await db.query(sql, values)
     return rows[0]
 }
 
-exports.updateUser = async (id,name)=>{
+exports.updateUser = async (id,data)=>{
+    const columns = []
+    const values = []
+    values.push(id)
+    for(let item in data){
+        values.push(data[item])
+        columns.push(`"${item}"=$${values.length}`)
+    }
+
     const sql = `UPDATE "users"
-    SET "fullName" = $1 WHERE "id" = $2
+    SET ${columns.join(', ')} WHERE "id" = $1
     RETURNING *`
-    const values = [name,id]
     const {rows} = await db.query(sql, values)
     return rows[0]
 }
