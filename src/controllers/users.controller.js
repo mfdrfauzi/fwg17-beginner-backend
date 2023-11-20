@@ -1,18 +1,3 @@
-// inisialisasi array of object 'users' yang berisi id dan nama user
-let users= [
-    {
-        id: 1,
-        name: 'Leane Graham'
-    },
-    {
-        id: 2,
-        name: 'Clementine Dubuque'
-    }
-]
-
-//mendekalarisak variable countUser sebagai panjang/banyaknya user
-let countUser = users.length
-
 const userModel = require('../models/users.model')
 
 //mendefinisikan fungsi getAllUsers untuk menampilkan semua users yang nantinya akan di export untuk digunakan oleh router
