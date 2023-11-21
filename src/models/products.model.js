@@ -1,14 +1,15 @@
 const db = require('../lib/db.lib')
 
-exports.findAll = async (keyword='',sortBy, orderBy, page=1)=>{
+exports.findAll = async (keyword='',searchBy, sortBy, orderBy, page=1)=>{
     const column = ["id", "name", "basePrice", "created_at"]
+    const search = ["name", "basePrice"]
     const ordering = ["asc","desc"]
     const limit = 10
     const offset = (page - 1) * limit
 
+    searchBy = search.includes(searchBy) ? searchBy : 'name'
     sortBy = column.includes(sortBy) ? sortBy : 'id'
     orderBy = ordering.includes(orderBy) ? orderBy : 'asc'
-
     const sql = `
     SELECT "p"."id" AS "id", 
     "p"."name" AS "productName", 
@@ -19,11 +20,11 @@ exports.findAll = async (keyword='',sortBy, orderBy, page=1)=>{
     COUNT(*) OVER() AS "total_count"
     FROM "products" "p"
     LEFT JOIN "productRatings" "pr" ON "p"."id" = "pr"."productId"
-    WHERE "p"."name" ILIKE $1
+    WHERE ${searchBy === 'basePrice' ? `"p"."${searchBy}" = $1` : `"p"."${searchBy}" ILIKE $1`}
     ORDER BY ${sortBy === 'created_at' ? `"p"."${sortBy}"::date` : `"p"."${sortBy}"`} ${orderBy}
     LIMIT ${limit} OFFSET ${offset}
     `
-    const values = [`%${keyword}%`]
+    const values = [searchBy === 'basePrice' ? keyword : `%${keyword}%`]
     const {rows} = await db.query(sql, values)
     return rows
 }

@@ -3,13 +3,14 @@ const productModel = require('../models/products.model')
 exports.getAllProducts = async (req,res) =>{
     try{
         const {
-            search, 
+            key, 
+            searchBy,
             sortBy, 
             orderBy,
             page
         } = req.query
 
-        const products = await productModel.findAll(search, sortBy, orderBy, page)
+        const products = await productModel.findAll(key, searchBy, sortBy, orderBy, page)
         if(products.length < 1){
             throw Error('no_data')
         }
