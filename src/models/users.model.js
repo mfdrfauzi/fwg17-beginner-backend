@@ -1,5 +1,22 @@
 const db = require('../lib/db.lib')
 
+exports.totalCount = async (keyword = '', sortBy, orderBy) => {
+    const column = ["id", "fullName", "role", "created_at"]
+
+    sortBy = column.includes(sortBy) ? sortBy : 'id'
+    orderBy = ["asc", "desc"].includes(orderBy) ? orderBy : 'asc'
+
+    const sql = `
+        SELECT COUNT(*) as total
+        FROM "users"
+        WHERE "fullName" ILIKE $1
+    `
+    const values = [`%${keyword}%`];
+
+    const result = await db.query(sql, values);
+    return result.rows[0].total;
+}
+
 exports.findAll = async (keyword='',sortBy, orderBy, page=1)=>{
     const column = ["id", "fullName", "role", "created_at"]
     const ordering = ["asc","desc"]
@@ -17,11 +34,10 @@ exports.findAll = async (keyword='',sortBy, orderBy, page=1)=>{
     "password",
     "phoneNumber",
     "role",
-    TO_CHAR("created_at", 'YYYY/MM/DD'),
-    COUNT(*) OVER() AS "total_count"
+    TO_CHAR("created_at", 'YYYY/MM/DD')
     FROM "users"
     WHERE "fullName" ILIKE $1
-    ORDER BY ${sortBy === 'created_at' ? `"${sortBy}"::date` : `"${sortBy}"`} ${orderBy}
+    ORDER BY ${sortBy} ${orderBy}
     LIMIT ${limit} OFFSET ${offset}
     `
     const values = [`%${keyword}%`]

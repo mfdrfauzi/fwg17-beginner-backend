@@ -14,7 +14,7 @@ exports.getAllProducts = async (req,res) =>{
         if(products.length < 1){
             throw Error('no_data')
         }
-        const totalProducts = products[0].total_count
+        const totalProducts = products[0].totalCount
 
         return res.json({
             sucess: true,

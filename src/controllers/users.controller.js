@@ -13,11 +13,11 @@ exports.getAllUsers = async (req,res) =>{
         if(users.length < 1){
             throw Error('no_data')
         }
-        const totalUsers = users[0].total_count
+        const totalCount = await userModel.totalCount(search, sortBy, orderBy)
 
         return res.json({
             sucess: true,
-            message: `List all users - ${totalUsers} data found.`,
+            message: `List all users - ${totalCount} data found.`,
             results: users
         })
     }catch(err){
@@ -40,19 +40,27 @@ exports.getDetailUser = async (req, res) =>{
     const {id} = req.params
     const {columns} = req.query
     const selectedColumns = columns ? columns.split(',') : undefined
-    const user = await userModel.findDetails(id, selectedColumns)
-    if(!user){
+    try{
+        const user = await userModel.findDetails(id, selectedColumns)
+        if(user){
+            return res.json({
+                success: true,
+                message: 'OK',
+                results: user
+            })
+        }
         return res.status(404).json({
             success: false,
             message: 'user not found'
         })
-    }
+    }catch(err){
+        console.log(JSON.stringify(err))
 
-    return res.json({
-        success: true,
-        message: 'OK',
-        results: user
-    })
+        return res.status(500).json({
+            success: false,
+            message: 'Internal server error'
+        })
+    }
 }
 
 exports.createUser = async (req, res) =>{
@@ -64,11 +72,20 @@ exports.createUser = async (req, res) =>{
             results: user
         })
     }catch(err){
-        console.log(JSON.stringify(err))
         if(err.code === "23502"){
             return res.status(400).json({
                 success: false,
                 message: `${err.column} Cannot be empty`
+            })
+        }
+        console.log(JSON.stringify(err))
+        if(err.code === "23505"){
+            const errDetails = err.detail.match(/\((.*?)\)=\((.*?)\)/)
+            const column = errDetails[1]
+            
+            return res.status(400).json({
+                success: false,
+                message: `${column} already exist.`
             })
         }
         return res.status(500).json({
@@ -81,34 +98,53 @@ exports.createUser = async (req, res) =>{
 
 exports.updateUser = async (req, res) =>{
     const id = req.params.id    
-    const user = await userModel.updateUser(id,req.body)
-    
-    if(!user){
-        return res.status(404).json({
-        success: false,
-        message: 'User not found'
+    try{
+        const user = await userModel.updateUser(id,req.body)
+        return res.json({
+            success: true,
+            message: 'Update user successfully',
+            results: user
         })
+    }catch(err){
+        console.log(JSON.stringify(err))
+        if(err.code === "23505"){
+            const errDetails = err.detail.match(/\((.*?)\)=\((.*?)\)/)
+            const column = errDetails[1]
+            
+            return res.status(400).json({
+                success: false,
+                message: `${column} already exist.`
+            })
+        }
+        return res.status(500).json({
+            success: false,
+            message: 'Internal server error'
+        });
+    
     }
-    return res.json({
-        success: true,
-        message: 'OK',
-        results: user
-    })
 }
 
 exports.deleteUser = async (req, res) => {
     const id = parseInt(req.params.id)
-    const user = await userModel.deleteUser(id)
-    if(!user){
+    try{
+        const user = await userModel.deleteUser(id)
+        if(user){
+            return res.json({
+                success: true,
+                message: 'OK',
+                results: user
+            })
+        }
         return res.status(404).json({
             success: false,
-            message: 'User not found'
+            message: 'user not found'
+        })
+    }catch(err){
+        console.log(JSON.stringify(err))
+
+        return res.status(500).json({
+            success: false,
+            message: 'Internal server error'
         })
     }
-    return res.json({
-        success: true,
-        message: 'Delete success',
-        results: user
-    })
-    
 }

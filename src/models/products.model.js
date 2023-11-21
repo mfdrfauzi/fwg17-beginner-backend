@@ -10,8 +10,7 @@ exports.findAll = async (keyword='',searchBy, sortBy, orderBy, page=1)=>{
     searchBy = search.includes(searchBy) ? searchBy : 'name'
     sortBy = column.includes(sortBy) ? sortBy : 'id'
     orderBy = ordering.includes(orderBy) ? orderBy : 'asc'
-    const sortCategories = sortBy === 'category' ? '"c"."name"' : `"p"."${sortBy}"`
-
+    
     const sql = `
     SELECT "p"."id" AS "id", 
     "p"."name" AS "productName", 
@@ -20,7 +19,7 @@ exports.findAll = async (keyword='',searchBy, sortBy, orderBy, page=1)=>{
     "pr"."rate" AS "rating",
     "c"."name" AS "categoryName",
     TO_CHAR("p"."created_at", 'YYYY/MM/DD') AS "createdAt",
-    COUNT(*) OVER() AS "total_count"
+    COUNT(*) OVER() AS "totalCount"
     FROM "products" "p"
     LEFT JOIN "productRatings" "pr" ON "p"."id" = "pr"."productId"
     LEFT JOIN "productCategories" "pc" ON "p"."id" = "pc"."productId"
