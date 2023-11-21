@@ -4,36 +4,34 @@ exports.getAllProducts = async (req,res) =>{
     try{
         const {
             key, 
-            searchBy,
             sortBy, 
             orderBy,
             page
         } = req.query
 
-        const products = await productModel.findAll(key, searchBy, sortBy, orderBy, page)
+        const products = await productModel.findAll(key, sortBy, orderBy, page)
         if(products.length < 1){
             throw Error('no_data')
         }
-        const totalProducts = products[0].totalCount
+        const totalCount = await productModel.totalCount(key, sortBy, orderBy)
 
         return res.json({
             sucess: true,
-            message: `List all products - ${totalProducts} data found.`,
+            message: `List all products - ${totalCount} data found.`,
             results: products
         })
     }catch(err){
-        console.log(JSON.stringify(err))
         if(err.message === 'no_data'){
             return res.status(404).json({
                 success: false,
                 messages: 'Data not found'
             })
         }
+        console.log(JSON.stringify(err))
         return res.status(500).json({
             success: false,
             message: 'Internal Server Error'
         })
-
     }
 }
 
@@ -41,19 +39,28 @@ exports.getDetailProduct = async (req, res) =>{
     const {id} = req.params
     const {columns} = req.query
     const selectedColumns = columns ? columns.split(',') : undefined
-    const product = await productModel.findDetails(id, selectedColumns)
-    if(!product){
+    try{
+        const product = await productModel.findDetails(id, selectedColumns)
+        if(product){
+            return res.json({
+                success: true,
+                message: 'OK',
+                results: product
+            })
+        }
         return res.status(404).json({
             success: false,
             message: 'product not found'
+            })
+    }catch(err){
+        console.log(JSON.stringify(err))
+
+        return res.status(500).json({
+            success: false,
+            message: 'Internal server error'
         })
     }
 
-    return res.json({
-        success: true,
-        message: 'OK',
-        results: product
-    })
 }
 
 exports.createProduct = async (req, res) =>{
@@ -78,35 +85,50 @@ exports.createProduct = async (req, res) =>{
 
 exports.updateProduct = async (req, res) =>{
     const id = req.params.id
-    
-    const product = await productModel.updateProduct(id,req.body)
-    
-    if(!product){
+    try{
+        const product = await productModel.updateProduct(id,req.body)
+        
+        if(product){
+            return res.json({
+                success: true,
+                message: 'OK',
+                results: product
+            })
+        }
         return res.status(404).json({
             success: false,
             message: 'product not found'
         })
+    }catch(err){
+        console.log(JSON.stringify(err))
+        return res.status(500).json({
+            success: false,
+            message: 'Internal server error'
+        })
     }
-    return res.json({
-        success: true,
-        message: 'OK',
-        results: product
-    })
 }
 
 exports.deleteProduct = async (req, res) => {
     const id = parseInt(req.params.id)
-    const product = await productModel.deleteProduct(id)
-    if(!product){
+    try{
+        const product = await productModel.deleteProduct(id)
+        if(product){
+            return res.json({
+                success: true,
+                message: 'Delete success',
+                results: product
+            })
+        }
         return res.status(404).json({
             success: false,
             message: 'product not found'
         })
+    }catch(err){
+        console.log(JSON.stringify(err))
+
+        return res.status(500).json({
+            success: false,
+            message: 'Internal server error'
+        })
     }
-    return res.json({
-        success: true,
-        message: 'Delete success',
-        results: product
-    })
-    
 }

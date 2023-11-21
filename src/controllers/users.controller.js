@@ -32,7 +32,6 @@ exports.getAllUsers = async (req,res) =>{
             success: false,
             message: 'Internal Server Error'
         })
-
     }
 }
 
@@ -119,7 +118,7 @@ exports.updateUser = async (req, res) =>{
         return res.status(500).json({
             success: false,
             message: 'Internal server error'
-        });
+        })
     
     }
 }

@@ -34,7 +34,7 @@ exports.findAll = async (keyword='',sortBy, orderBy, page=1)=>{
     "password",
     "phoneNumber",
     "role",
-    TO_CHAR("created_at", 'YYYY/MM/DD')
+    "created_at" AS "createdAt"
     FROM "users"
     WHERE "fullName" ILIKE $1
     ORDER BY ${sortBy} ${orderBy}
@@ -73,6 +73,7 @@ exports.insert = async (data)=>{
     const sql = `
     INSERT INTO "users"
     (${columns.join(', ')})
+    
     VALUES
     (${insertedValues})
     RETURNING *
@@ -91,7 +92,8 @@ exports.updateUser = async (id,data)=>{
     }
 
     const sql = `UPDATE "users"
-    SET ${columns.join(', ')} WHERE "id" = $1
+    SET ${columns.join(', ')}
+    WHERE "id" = $1
     RETURNING *`
     const {rows} = await db.query(sql, values)
     return rows[0]
