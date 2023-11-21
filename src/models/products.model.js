@@ -10,16 +10,21 @@ exports.findAll = async (keyword='',searchBy, sortBy, orderBy, page=1)=>{
     searchBy = search.includes(searchBy) ? searchBy : 'name'
     sortBy = column.includes(sortBy) ? sortBy : 'id'
     orderBy = ordering.includes(orderBy) ? orderBy : 'asc'
+    const sortCategories = sortBy === 'category' ? '"c"."name"' : `"p"."${sortBy}"`
+
     const sql = `
     SELECT "p"."id" AS "id", 
     "p"."name" AS "productName", 
     "p"."description", 
     "p"."basePrice" AS "price", 
     "pr"."rate" AS "rating",
+    "c"."name" AS "categoryName",
     TO_CHAR("p"."created_at", 'YYYY/MM/DD') AS "createdAt",
     COUNT(*) OVER() AS "total_count"
     FROM "products" "p"
     LEFT JOIN "productRatings" "pr" ON "p"."id" = "pr"."productId"
+    LEFT JOIN "productCategories" "pc" ON "p"."id" = "pc"."productId"
+    LEFT JOIN "categories" "c" ON "pc"."categoryId" = "c"."id"
     WHERE ${searchBy === 'basePrice' ? `"p"."${searchBy}" = $1` : `"p"."${searchBy}" ILIKE $1`}
     ORDER BY ${sortBy === 'created_at' ? `"p"."${sortBy}"::date` : `"p"."${sortBy}"`} ${orderBy}
     LIMIT ${limit} OFFSET ${offset}
