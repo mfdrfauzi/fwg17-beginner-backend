@@ -117,8 +117,7 @@ exports.updatePassword = async (req, res) =>{
 
         return res.json({
             success: true,
-            message: 'Update password successfully',
-            results: updatedPassword
+            message: 'Update password successfully'
         })
     }catch(err){
         if(err.message === 'hashed'){

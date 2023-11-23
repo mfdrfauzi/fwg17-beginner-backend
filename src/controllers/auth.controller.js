@@ -74,3 +74,32 @@ exports.register = async (req, res) =>{
         })
     }
 }
+
+exports.forgotPassword = async (req, res)=>{
+    try{
+        const {email, password} = req.body
+        const user = await userModel.findOneByEmail(email)
+        if (!password || password === '') {
+            throw new Error ('Please insert the new password')
+        }
+
+        if(!user){
+            throw new Error('Email is not registered')
+        }
+
+        const hashed = await argon.hash(password)
+        const updatePassword = await userModel.updateUser(user.id,{password: hashed})
+
+        return res.json({
+            success: true,
+            message: 'Update password successfully'
+        })
+
+    }catch(err){
+        console.log(JSON.stringify(err))
+        return res.status(400).json({
+            success: false,
+            messages: err.message || 'Bad request'
+        })
+    }
+}
