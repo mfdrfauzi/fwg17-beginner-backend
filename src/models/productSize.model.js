@@ -1,7 +1,21 @@
 const db = require('../lib/db.lib')
 
+exports.totalCount = async () => {
+    
+    const sql = `
+        SELECT COUNT(*) as total
+        FROM "productSize"
+    `
+    const values = []
+
+    const result = await db.query(sql, values)
+    return result.rows[0].total
+}
+
 exports.findAll = async ()=>{
-    const sql = `SELECT * FROM "productSize"`
+    const sql = `SELECT "id", "size","additionalPrice","createdAt"
+    FROM "productSize"`
+
     const values = []
     const {rows} = await db.query(sql, values)
     return rows

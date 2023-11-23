@@ -1,12 +1,35 @@
 const productSizeModel = require('../models/productSize.model')
 
 exports.getAllSize = async (req,res) =>{
-    const size = await productSizeModel.findAll()
-    return res.json({
-        sucess: true,
-        message: 'List all size',
-        results: size
-    })
+    try{
+        const { 
+            sortBy, 
+            orderBy,
+            page
+        } = req.query
+        const size = await productSizeModel.findAll()
+        if(size.length < 1){
+            throw Error('no_data')
+        }
+        const totalCount = await productSizeModel.totalCount(sortBy,orderBy,page)
+        return res.json({
+            sucess: true,
+            message: `List all size - ${totalCount} data found.`,
+            results: size
+        })
+    }catch(err){
+        if(err.message === 'no_data'){
+            return res.status(404).json({
+                success: false,
+                messages: 'Data not found'
+            })
+        }
+        console.log(JSON.stringify(err))
+        return res.status(500).json({
+            success: false,
+            message: 'Internal Server Error'
+        })
+    }
 }
 
 exports.getDetailSize = async (req, res) =>{

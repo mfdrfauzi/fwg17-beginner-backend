@@ -2,7 +2,7 @@
 const userRouter = require('express').Router()
 
 //mendeklarasikan usersController untuk mengimport module 'users.controller.js' yang mengatur segala proses mengenai users di folder '/src/controllers'
-const userController = require('../controllers/users.controller')
+const userController = require('../../controllers/admin/users.controller')
 
 //menggunakan/memanggil router dengan fungsi getAllUsers dalam module/file users.controller yang menangani permintaan get di endpoint '/' untuk melihat semua user
 userRouter.get('/', userController.getAllUsers)

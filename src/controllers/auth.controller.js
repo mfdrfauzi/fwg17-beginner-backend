@@ -1,19 +1,76 @@
-//mengexport fungsi login sebagai bagian dari modul controller
-exports.login = (req,res) =>{
-    //mendestruct object dari request body untuk mendapatkan nilai username dan password
-    const {username, password} = req.body
-    //mengecek apabila username adalah "admin@mail.com" dan password adalah "1234"
-    if(username=== "admin@mail.com" && password ==="1234"){
-        //jika bernilai true, maka akn mereturn respon json yang berisi keberhasilan login
+const userModel = require('../models/users.model')
+const argon = require('argon2')
+const jwt = require('jsonwebtoken')
+
+exports.login = async (req,res) =>{
+    try{
+        const {email, password} = req.body
+
+        const user = await userModel.findOneByEmail(email)
+
+        if(!user){
+            throw Error('wrong')
+        }
+
+        const verify = await argon.verify(user.password, password)
+
+        if(!verify){
+            throw Error('wrong')
+        }
+        const payload = {
+            id: user.id,
+            role: user.role
+        }
+
+        const token = jwt.sign(payload, process.env.APP_SECRET || 'secretkey')
         return res.json({
             success: true,
-            massage: 'Login success'
+            messages: 'Login Success',
+            results: {
+                token
+            }
         })
-    }else{
-        //jika bernilai false, akan mereturn respon json yang berisi kegagalan login dengan pesan 'Wrong username or password'
+    }catch(err){
+        if(err.message === 'wrong'){
+            return res.status(401).json({
+                success: false,
+                messages: 'Wrong email or password'
+            })
+        }
+
+    }
+    // if(email=== "admin@mail.com" && password ==="1234"){
+    //     return res.json({
+    //         success: true,
+    //         massage: 'Login success'
+    //     })
+    // }else{
+    //     return res.json({
+    //         success: false,
+    //         message: 'Wrong username or password'
+    //     })
+    // }
+}
+
+exports.register = async (req, res) =>{
+    try{
+        const {fullName, email, password} = req.body
+        const hashed = await argon.hash(password)
+        const user = await userModel.insert({
+            fullName,
+            email,
+            password: hashed
+        })
         return res.json({
+            success: true,
+            message: 'Register sucessfully'
+        })
+
+    }catch(err){
+        console.log(err)
+        return res.status(500).json({
             success: false,
-            message: 'Wrong username or password'
+            message: 'Internal server error'
         })
     }
 }

@@ -1,7 +1,7 @@
 const db = require('../lib/db.lib')
 
 exports.totalCount = async (keyword = '', sortBy, orderBy) => {
-    const column = ["id", "fullName", "role", "created_at"]
+    const column = ["id", "fullName", "role", "createdAt"]
 
     sortBy = column.includes(sortBy) ? sortBy : 'id'
     orderBy = ["asc", "desc"].includes(orderBy) ? orderBy : 'asc'
@@ -18,7 +18,7 @@ exports.totalCount = async (keyword = '', sortBy, orderBy) => {
 }
 
 exports.findAll = async (keyword='',sortBy, orderBy, page=1)=>{
-    const column = ["id", "fullName", "role", "created_at"]
+    const column = ["id", "fullName", "role", "createdAt"]
     const ordering = ["asc","desc"]
     const limit = 5
     const offset = (page - 1) * limit
@@ -34,7 +34,7 @@ exports.findAll = async (keyword='',sortBy, orderBy, page=1)=>{
     "password",
     "phoneNumber",
     "role",
-    "created_at" AS "createdAt"
+    "createdAt"
     FROM "users"
     WHERE "fullName" ILIKE $1
     ORDER BY ${sortBy} ${orderBy}
@@ -48,7 +48,7 @@ exports.findAll = async (keyword='',sortBy, orderBy, page=1)=>{
 exports.findDetails = async (id,selectedColumns)=>{
     const column = [
         "id", "fullName", "email", 
-        "password", "phoneNumber", "role", "created_at"]
+        "password", "phoneNumber", "role", "createdAt"]
     selectColumns = selectedColumns || column
 
     const sql = `
@@ -57,6 +57,13 @@ exports.findDetails = async (id,selectedColumns)=>{
     WHERE "id" = $1`
     const values = [id]
     const {rows} = await db.query(sql, values)
+    return rows[0]
+}
+
+exports.findOneByEmail = async (email) =>{
+    const sql = `SELECT * FROM "users" WHERE "email" = $1`
+    const values = [email]
+    const {rows} = await db.query(sql,values)
     return rows[0]
 }
 
