@@ -1,4 +1,4 @@
-const promosModel = require('../models/promos.model')
+const promosModel = require('../../models/promos.model')
 
 exports.getAllPromos = async (req,res) =>{
     const promos = await promosModel.findAll()

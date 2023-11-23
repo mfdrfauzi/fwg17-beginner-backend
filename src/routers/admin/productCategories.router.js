@@ -1,6 +1,6 @@
 const productCategoriesRouter = require('express').Router()
 
-const productCategoriesController = require('../controllers/productCategories.controller')
+const productCategoriesController = require('../../controllers/admin/productCategories.controller')
 
 productCategoriesRouter.get('/', productCategoriesController.getAllProductCategories)
 productCategoriesRouter.get('/:id', productCategoriesController.getDetailProductCategories)

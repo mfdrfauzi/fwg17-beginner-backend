@@ -1,38 +1,38 @@
-const ordersModel = require('../models/orders.model')
+const orderDetailsModel = require('../../models/orderDetails.model')
 
-exports.getAllOrders = async (req,res) =>{
-    const orders = await ordersModel.findAll()
+exports.getAllOrderDetails = async (req,res) =>{
+    const orderDetails = await orderDetailsModel.findAll()
     return res.json({
         sucess: true,
-        message: 'List all orders',
-        results: orders
+        message: 'List all orderDetails',
+        results: orderDetails
     })
 }
 
-exports.getDetailOrders = async (req, res) =>{
+exports.getDetailOrderDetails = async (req, res) =>{
     const id = parseInt(req.params.id)
-    const orders = await ordersModel.findDetails(id)
-    if(!orders){
+    const orderDetails = await orderDetailsModel.findDetails(id)
+    if(!orderDetails){
         return res.status(404).json({
             success: false,
-            message: 'orders not found'
+            message: 'orderDetails not found'
         })
     }
 
     return res.json({
         success: true,
         message: 'OK',
-        results: orders
+        results: orderDetails
     })
 }
 
-exports.createOrders = async (req, res) =>{
+exports.createOrderDetails = async (req, res) =>{
     try{
-        const orders = await ordersModel.insert(req.body)
+        const orderDetails = await orderDetailsModel.insert(req.body)
         return res.json({
             success: true,
-            message: 'Create orders successfully',
-            results: orders
+            message: 'Create orderDetails successfully',
+            results: orderDetails
         })
     }catch(err){
         console.log(JSON.stringify(err))
@@ -55,37 +55,37 @@ exports.createOrders = async (req, res) =>{
     }
 }
 
-exports.updateOrders = async (req, res) =>{
+exports.updateOrderDetails = async (req, res) =>{
     const id = req.params.id
-    const totalByProductId = req.body.totalByProductId
-    const address = req.body.address
-    const orders = await ordersModel.updateOrders(id,totalByProductId,address)
+    const variant = req.body.variant
+    const size = req.body.size
+    const orderDetails = await orderDetailsModel.updateOrderDetails(id,variant,size)
     
-    if(!orders){
+    if(!orderDetails){
         return res.status(404).json({
         success: false,
-        message: 'orders not found'
+        message: 'orderDetails not found'
         })
     }
     return res.json({
         success: true,
         message: 'OK',
-        results: orders
+        results: orderDetails
     })
 }
 
-exports.deleteOrders = async (req, res) => {
+exports.deleteOrderDetails = async (req, res) => {
     const id = parseInt(req.params.id)
-    const orders = await ordersModel.deleteOrders(id)
-    if(!orders){
+    const orderDetails = await orderDetailsModel.deleteOrderDetails(id)
+    if(!orderDetails){
         return res.status(404).json({
             success: false,
-            message: 'orders not found'
+            message: 'orderDetails not found'
         })
     }
     return res.json({
         success: true,
         message: 'Delete success',
-        results: orders
+        results: orderDetails
     })  
 }

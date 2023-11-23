@@ -1,6 +1,6 @@
 const productTagsRouter = require('express').Router()
 
-const productTagsController = require('../controllers/productTags.controller')
+const productTagsController = require('../../controllers/admin/productTags.controller')
 
 productTagsRouter.get('/', productTagsController.getAllProductTags)
 productTagsRouter.get('/:id', productTagsController.getDetailProductTags)

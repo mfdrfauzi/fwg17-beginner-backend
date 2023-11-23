@@ -1,6 +1,6 @@
 const messagesRouter = require('express').Router()
 
-const messagesController = require('../controllers/messages.controller')
+const messagesController = require('../../controllers/admin/messages.controller')
 
 messagesRouter.get('/', messagesController.getAllMessages)
 messagesRouter.get('/:id', messagesController.getDetailMessages)

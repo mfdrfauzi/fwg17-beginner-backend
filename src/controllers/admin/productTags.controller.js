@@ -1,4 +1,4 @@
-const productTagsModel = require('../models/productTags.model')
+const productTagsModel = require('../../models/productTags.model')
 
 exports.getAllProductTags = async (req,res) =>{
     const productTags = await productTagsModel.findAll()

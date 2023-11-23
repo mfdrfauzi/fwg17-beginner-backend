@@ -1,4 +1,4 @@
-const productCategoriesModel = require('../models/productCategories.model')
+const productCategoriesModel = require('../../models/productCategories.model')
 
 exports.getAllProductCategories = async (req,res) =>{
     const productCategories = await productCategoriesModel.findAll()

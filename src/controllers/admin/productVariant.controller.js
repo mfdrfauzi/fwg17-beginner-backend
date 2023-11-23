@@ -1,4 +1,4 @@
-const productVariantModel = require('../models/productVariant.model')
+const productVariantModel = require('../../models/productVariant.model')
 
 exports.getAllVariants = async (req,res) =>{
     const variants = await productVariantModel.findAll()
