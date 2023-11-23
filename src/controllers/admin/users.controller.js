@@ -1,4 +1,5 @@
 const userModel = require('../../models/users.model')
+const argon = require('argon2')
 
 exports.getAllUsers = async (req,res) =>{
     try{
@@ -92,6 +93,45 @@ exports.createUser = async (req, res) =>{
             message: 'Internal server error'
         });
     
+    }
+}
+
+exports.updatePassword = async (req, res) =>{
+    const id = req.params.id
+    try{
+        const user = await userModel.findDetails(id,['id','password'])
+
+        if(!user){
+            return res.status(404).json({
+                success: false,
+                message: 'User not found'
+            })
+        }
+
+        if(user.password.startsWith('$argon2')){
+            throw Error('hashed')
+        }
+
+        const hashedPassword = await argon.hash(user.password)
+        const updatedPassword = await userModel.updateUser(id,{password: hashedPassword})
+
+        return res.json({
+            success: true,
+            message: 'Update password successfully',
+            results: updatedPassword
+        })
+    }catch(err){
+        if(err.message === 'hashed'){
+            return res.status(400).json({
+                success: false,
+                message: 'Password already hashed'
+            })
+        }
+        console.error(err)
+        return res.status(500).json({
+            success: false,
+            message: 'Internal server error'
+        })
     }
 }
 
