@@ -18,16 +18,16 @@ exports.totalCount = async (keyword = '', sortBy, orderBy) => {
 }
 
 exports.findAll = async (keyword='', sortBy, orderBy, page=1)=>{
-    const column = ["id", "name", "basePrice", "createdAt","categoryName"]
+    const column = ["id", "name", "basePrice", "createdAt","category","rating"]
     const ordering = ["asc","desc"]
     const limit = 10
     const offset = (page - 1) * limit
 
     sortBy = column.includes(sortBy) ? sortBy : 'id'
     orderBy = ordering.includes(orderBy) ? orderBy : 'asc'
-    
 
     const sortColumn = sortBy === 'categoryName' ? '"c"."name"' : `"p"."${sortBy}"`
+    
     console.log('sortBy:', sortBy)
     const sql = `
     SELECT 
@@ -37,7 +37,7 @@ exports.findAll = async (keyword='', sortBy, orderBy, page=1)=>{
     "p"."description", 
     "p"."basePrice" AS "price", 
     "pr"."rate" AS "rating",
-    "c"."name" AS "categoryName",
+    "c"."name" AS "category",
     "p"."createdAt" AS "createdAt"
     FROM "products" "p"
     LEFT JOIN "productRatings" "pr" ON "p"."id" = "pr"."productId"
@@ -53,13 +53,13 @@ exports.findAll = async (keyword='', sortBy, orderBy, page=1)=>{
 }
 
 exports.findDetails = async (id,selectedColumns)=>{
-    const column = ["id", "name", "description", "basePrice"]
+    const column = ["id", "name", "image", "description", "basePrice"]
     selectColumns = selectedColumns || column
 
     const sql = `
     SELECT ${selectColumns.map(col => `"p"."${col}" AS "${col}"`).join(', ')} , "pr"."rate" AS "rate"
     FROM "products" "p"
-    JOIN "productRatings" "pr" ON "p"."id" = "pr"."productId"
+    LEFT JOIN "productRatings" "pr" ON "p"."id" = "pr"."productId"
     WHERE "p"."id" = $1`
     const values = [id]
     const {rows} = await db.query(sql, values)
@@ -74,7 +74,7 @@ exports.insert = async (data)=>{
         columns.push(`"${item}"`)
     }
 
-    const insertedValues = values.map((value, index) => `$${index + 1}`).join(', ');
+    const insertedValues = values.map((value, index) => `$${index + 1}`).join(', ')
 
     const sql = `
     INSERT INTO "products"

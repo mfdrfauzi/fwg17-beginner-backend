@@ -38,24 +38,47 @@ exports.findDetails = async (id)=>{
 }
 
 exports.insert = async (data) => {
+    const columns = []
+    const values = []
+
+    for (let item in data) {
+        values.push(data[item])
+        columns.push(`"${item}"`)
+    }
+
+    const insertedValues = values.map((value, index) => `$${index + 1}`).join(', ')
+
     const sql = `
-    INSERT INTO "orderDetails" ("productId", "productVariantId", "productSizeId", "quantity", "orderId")
-    VALUES($1, $2, $3, $4, $5)
-    RETURNING *
+        INSERT INTO "orderDetails"
+        (${columns.join(', ')})
+        VALUES
+        (${insertedValues})
+        RETURNING *
     `
 
-    const values = [data.productId, data.productVariantId,data.productSizeId, data.quantity, data.orderId]
     const { rows } = await db.query(sql, values)
     return rows[0]
-};
+}
 
-exports.updateOrderDetails = async (id,variant,size)=>{
-    const sql = `UPDATE "orderDetails"
-    SET "productVariantId" = $1,"productSizeId" = $2 WHERE "id" = $3
-    RETURNING *`
+exports.updateOrderDetails = async (id,data)=>{
+    const columns = []
+    const values = []
 
-    const values = [variant,size,id]
-    const {rows} = await db.query(sql, values)
+    for (let item in data) {
+        values.push(data[item])
+        columns.push(`"${item}" = $${values.length}`)
+    }
+
+    const sql = `
+        UPDATE "orderDetails"
+        SET ${columns.join(', ')}
+        WHERE "id" = $${values.length + 1}
+        RETURNING *
+    `
+
+    values.push(id)
+
+    const { rows } = await db.query(sql, values)
     return rows[0]
 }
 

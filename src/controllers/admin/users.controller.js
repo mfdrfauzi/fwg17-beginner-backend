@@ -65,6 +65,10 @@ exports.getDetailUser = async (req, res) =>{
 
 exports.createUser = async (req, res) =>{
     try{
+        if(req.body.password){
+            req.body.password = await argon.hash(req.body.password)
+        }
+
         const user = await userModel.insert(req.body)
         return res.json({
             success: true,
@@ -88,6 +92,7 @@ exports.createUser = async (req, res) =>{
                 message: `${column} already exist.`
             })
         }
+        console.log(err)
         return res.status(500).json({
             success: false,
             message: 'Internal server error'
@@ -96,48 +101,57 @@ exports.createUser = async (req, res) =>{
     }
 }
 
-exports.updatePassword = async (req, res) =>{
-    const id = req.params.id
-    try{
-        const user = await userModel.findDetails(id,['id','password'])
+// exports.updatePassword = async (req, res) =>{
+//     const id = req.params.id
+//     try{
+//         const user = await userModel.findDetails(id,['id','password'])
 
-        if(!user){
-            return res.status(404).json({
-                success: false,
-                message: 'User not found'
-            })
-        }
+//         if(!user){
+//             return res.status(404).json({
+//                 success: false,
+//                 message: 'User not found'
+//             })
+//         }
 
-        if(user.password.startsWith('$argon2')){
-            throw Error('hashed')
-        }
+//         if(user.password.startsWith('$argon2')){
+//             throw Error('hashed')
+//         }
 
-        const hashedPassword = await argon.hash(user.password)
-        const updatedPassword = await userModel.updateUser(id,{password: hashedPassword})
+//         const hashedPassword = await argon.hash(user.password)
+//         const updatedPassword = await userModel.updateUser(id,{password: hashedPassword})
 
-        return res.json({
-            success: true,
-            message: 'Update password successfully'
-        })
-    }catch(err){
-        if(err.message === 'hashed'){
-            return res.status(400).json({
-                success: false,
-                message: 'Password already hashed'
-            })
-        }
-        console.error(err)
-        return res.status(500).json({
-            success: false,
-            message: 'Internal server error'
-        })
-    }
-}
+//         return res.json({
+//             success: true,
+//             message: 'Update password successfully'
+//         })
+//     }catch(err){
+//         if(err.message === 'hashed'){
+//             return res.status(400).json({
+//                 success: false,
+//                 message: 'Password already hashed'
+//             })
+//         }
+//         console.error(err)
+//         return res.status(500).json({
+//             success: false,
+//             message: 'Internal server error'
+//         })
+//     }
+// }
 
 exports.updateUser = async (req, res) =>{
     const id = req.params.id    
     try{
-        const user = await userModel.updateUser(id,req.body)
+        const data = {
+            ...req.body
+        }
+
+        if(req.body.password){
+            data.password = await argon.hash(req.body.password)
+        }
+
+        const user = await userModel.updateUser(id,data)
+        
         return res.json({
             success: true,
             message: 'Update user successfully',

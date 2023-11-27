@@ -15,25 +15,59 @@ exports.findDetails = async (id)=>{
 }
 
 exports.insert = async (data) => {
+    const columns = []
+    const values = []
+    const productId = data.productId
+
+    for (let item in data) {
+        if (item !== 'productId') { 
+            values.push(data[item])
+            columns.push(`"${item}"`)
+        }
+    }
+
+    const total = `(SELECT SUM("basePrice") FROM "products" WHERE "id" IN (${productId.map((_, index) => `$${values.length + index + 1}`).join(', ')}))`
+
+    values.push(...productId)
+
+    const insertedValues = values.map((value, index) => `$${index + 1}`).join(', ')
+
     const sql = `
-    INSERT INTO "orders" ("userId", "orderNumber", "total", "status", "deliveryAddress", "fullName", "email")
-    VALUES($1, $2, (select "basePrice" from "products" where "id" = $3), $4, $5, $6, $7)
-    RETURNING *
+        INSERT INTO "orders"
+        (${columns.join(', ')}, "total")
+        VALUES
+        (${insertedValues}, ${total})
+        RETURNING *
     `
 
-    const values = [data.userId, data.orderNumber,data.totalByProductId, data.status, data.deliveryAddress, data.fullName, data.email]
     const { rows } = await db.query(sql, values)
     return rows[0]
-};
+}
 
-exports.updateOrders = async (id,totalByProductId,address)=>{
-    const sql = `UPDATE "orders"
-    SET "total" = (select "basePrice" from "products" where "id" = $1),"deliveryAddress" = $2 WHERE "id" = $3
-    RETURNING *`
+exports.updateOrders = async (id, data)=>{
+    const columns = []
+    const values = []
+    const productId = data.productId
 
-    const values = [totalByProductId,address,id]
-    const {rows} = await db.query(sql, values)
-    return rows[0]
+    for (let item in data) {
+        if (item !== 'productId') {
+            values.push(data[item])
+            columns.push(`"${item}" = $${values.length}`)
+        }
+    }
+    const total = `(SELECT SUM("basePrice") FROM "products" WHERE "id" IN (${productId.map((_, index) => `$${values.length + index + 1}`).join(', ')}))`
+
+    values.push(id)
+
+    const sql = `
+        UPDATE "orders"
+        SET ${columns.join(', ')}, "total" = ${total}
+        WHERE "id" = $${values.length + 1}
+        RETURNING *
+    `
+
+    const { rows } = await db.query(sql, values);
+    return rows[0];
 }
 
 exports.deleteOrders = async (id)=>{

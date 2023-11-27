@@ -16,7 +16,7 @@ userRouter.post('/', userController.createUser)
 //menggunakan/memanggil router dengan fungsi updateUser dalam module/file users.controller yang menangani permintaan patch di endpoint '/:id' dari user/admin untuk mengubah/memperbarui data user berdasarkan id
 userRouter.patch('/:id', userController.updateUser)
 
-userRouter.patch('/update-password/:id', userController.updatePassword)
+// userRouter.patch('/update-password/:id', userController.updatePassword)
 //menggunakan/memanggil router dengan fungsi deleteUser dalam module/file users.controller yang menangani permintaan delete di endpoint '/:id' dari user/admin untuk menghapus data user berdasarkan id
 userRouter.delete('/:id', userController.deleteUser)
 

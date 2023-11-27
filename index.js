@@ -2,6 +2,8 @@ require('dotenv').config({
     path: './.env'
 })
 
+global.path = __dirname
+
 //import package
 //pendeklarasian variable express yang isi/valuenya adalah package express yang sudah di install
 const express = require('express')
