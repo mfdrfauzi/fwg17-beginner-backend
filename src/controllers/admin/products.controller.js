@@ -65,7 +65,11 @@ exports.getDetailProduct = async (req, res) =>{
 
 exports.createProduct = async (req, res) =>{
     try{
+        if(req.file){
+            req.body.image = req.file.filename
+        }
         const product = await productModel.insert(req.body)
+
         return res.json({
             success: true,
             message: 'Create product successfully',
@@ -86,12 +90,15 @@ exports.createProduct = async (req, res) =>{
 exports.updateProduct = async (req, res) =>{
     const id = req.params.id
     try{
+        if(req.file){
+            req.body.image = req.file.filename
+        }
         const product = await productModel.updateProduct(id,req.body)
         
         if(product){
             return res.json({
                 success: true,
-                message: 'OK',
+                message: 'Update Success',
                 results: product
             })
         }

@@ -1,7 +1,7 @@
 const db = require('../lib/db.lib')
 
 exports.totalCount = async (keyword = '', sortBy, orderBy) => {
-    const column = ["id", "name", "basePrice", "created_at"]
+    const column = ["id", "name", "basePrice", "createdAt"]
 
     sortBy = column.includes(sortBy) ? sortBy : 'id'
     orderBy = ["asc", "desc"].includes(orderBy) ? orderBy : 'asc'
@@ -18,7 +18,7 @@ exports.totalCount = async (keyword = '', sortBy, orderBy) => {
 }
 
 exports.findAll = async (keyword='', sortBy, orderBy, page=1)=>{
-    const column = ["id", "name", "basePrice", "created_at","categoryName"]
+    const column = ["id", "name", "basePrice", "createdAt","categoryName"]
     const ordering = ["asc","desc"]
     const limit = 10
     const offset = (page - 1) * limit
@@ -33,11 +33,12 @@ exports.findAll = async (keyword='', sortBy, orderBy, page=1)=>{
     SELECT 
     "p"."id" AS "id", 
     "p"."name" AS "productName", 
+    "p"."image" AS "image",
     "p"."description", 
     "p"."basePrice" AS "price", 
     "pr"."rate" AS "rating",
     "c"."name" AS "categoryName",
-    "p"."created_at" AS "createdAt"
+    "p"."createdAt" AS "createdAt"
     FROM "products" "p"
     LEFT JOIN "productRatings" "pr" ON "p"."id" = "pr"."productId"
     LEFT JOIN "productCategories" "pc" ON "p"."id" = "pc"."productId"
@@ -52,13 +53,13 @@ exports.findAll = async (keyword='', sortBy, orderBy, page=1)=>{
 }
 
 exports.findDetails = async (id,selectedColumns)=>{
-    const column = ["id", "name", "description", "basePrice", "rate"]
+    const column = ["id", "name", "description", "basePrice"]
     selectColumns = selectedColumns || column
 
     const sql = `
-    SELECT ${selectColumns.map(col => `"p"."${col}" AS "${col}"`).join(', ')}
+    SELECT ${selectColumns.map(col => `"p"."${col}" AS "${col}"`).join(', ')} , "pr"."rate" AS "rate"
     FROM "products" "p"
-    LEFT JOIN "productRatings" "pr" ON "p"."id" = "pr"."productId"
+    JOIN "productRatings" "pr" ON "p"."id" = "pr"."productId"
     WHERE "p"."id" = $1`
     const values = [id]
     const {rows} = await db.query(sql, values)
@@ -96,7 +97,7 @@ exports.updateProduct = async (id,data)=>{
     }
 
     const sql = `UPDATE "products"
-    SET ${columns.join(', ')} WHERE "id" = $1
+    SET ${columns.join(', ')}, "updatedAt" = now() WHERE "id" = $1
     RETURNING *`
     const {rows} = await db.query(sql, values)
     return rows[0]
